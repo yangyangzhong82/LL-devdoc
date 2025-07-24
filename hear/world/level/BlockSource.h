@@ -77,546 +77,802 @@ public:
 
     LLAPI optional_ref<Actor> spawnActor(CompoundTag const&);
 
-public:
+  public:
     // member variables
+    // 成员变量
     // NOLINTBEGIN
-    ::ll::TypedStorage<4, 4, ::std::thread::id const>                         mOwnerThreadID;
-    ::ll::TypedStorage<1, 1, bool const>                                      mAllowUnpopulatedChunks;
-    ::ll::TypedStorage<1, 1, bool const>                                      mPublicSource;
-    ::ll::TypedStorage<1, 1, bool>                                            mCheckValidity;
-    ::ll::TypedStorage<8, 8, ::Level&>                                        mLevel;
-    ::ll::TypedStorage<8, 8, ::ChunkSource&>                                  mChunkSource;
-    ::ll::TypedStorage<8, 8, ::Dimension&>                                    mDimension;
-    ::ll::TypedStorage<2, 2, short const>                                     mMaxHeight;
-    ::ll::TypedStorage<2, 2, short const>                                     mMinHeight;
-    ::ll::TypedStorage<8, 24, ::std::vector<::BlockDataFetchResult<::Block>>> mTempBlockFetchResult;
-    ::ll::TypedStorage<1, 1, bool>                                            mAllowTickingChanges;
-    ::ll::TypedStorage<4, 12, ::BlockPos>                                     mPlaceChunkPos;
-    ::ll::TypedStorage<8, 24, ::std::vector<::BlockSourceListener*>>          mListeners;
-    ::ll::TypedStorage<8, 8, ::Tick>                                          mCurrentTickForValidityChecks;
-    ::ll::TypedStorage<1, 1, bool>                                            mIsPersistantBlockSource;
-    ::ll::TypedStorage<8, 8, ::ChunkPos>                                      mLastChunkPos;
-    ::ll::TypedStorage<8, 16, ::std::weak_ptr<::LevelChunk>>                  mLastChunkWeakPtr;
-    ::ll::TypedStorage<8, 8, ::LevelChunk*>                                   mLastChunkDirectPtr;
-    ::ll::TypedStorage<8, 8, ::BlockTickingQueue*>                            mRandomTickQueue;
-    ::ll::TypedStorage<8, 8, ::BlockTickingQueue*>                            mTickQueue;
-    ::ll::TypedStorage<1, 2, ::BrightnessPair const>                          mDefaultBrightness;
-    ::ll::TypedStorage<8, 24, ::std::vector<::Actor*>>                        mTempEntityList;
-    ::ll::TypedStorage<8, 24, ::std::vector<::BlockActor*>>                   mTempBlockEntityList;
-    ::ll::TypedStorage<8, 24, ::std::vector<::AABB>>                          mTempCubeList;
+    // 拥有此 BlockSource 实例的线程ID。
+    ::ll::TypedStorage<4, 4, ::std::thread::id const> mOwnerThreadID;
+    // 是否允许访问未填充（未完全生成）的区块。
+    ::ll::TypedStorage<1, 1, bool const> mAllowUnpopulatedChunks;
+    // 是否为公共源（通常对玩家可见，会进行更多检查）。
+    ::ll::TypedStorage<1, 1, bool const> mPublicSource;
+    // 是否检查有效性（用于调试或特定操作）。
+    ::ll::TypedStorage<1, 1, bool> mCheckValidity;
+    // 此 BlockSource 所属的 Level (世界) 的引用。
+    ::ll::TypedStorage<8, 8, ::Level &> mLevel;
+    // 用于获取区块数据的 ChunkSource 的引用。
+    ::ll::TypedStorage<8, 8, ::ChunkSource &> mChunkSource;
+    // 此 BlockSource 所在的维度的引用。
+    ::ll::TypedStorage<8, 8, ::Dimension &> mDimension;
+    // 此方块源的最大高度。
+    ::ll::TypedStorage<2, 2, short const> mMaxHeight;
+    // 此方块源的最小高度。
+    ::ll::TypedStorage<2, 2, short const> mMinHeight;
+    // 用于临时存储方块获取结果的向量，以避免重复分配内存。
+    ::ll::TypedStorage<8, 24, ::std::vector<::BlockDataFetchResult<::Block>>>
+        mTempBlockFetchResult;
+    // 是否允许触发计划更新（Ticking）的方块变更。
+    ::ll::TypedStorage<1, 1, bool> mAllowTickingChanges;
+    // 用于放置操作的区块位置缓存。
+    ::ll::TypedStorage<4, 12, ::BlockPos> mPlaceChunkPos;
+    // 监听此方块源事件（如方块变更）的监听器列表。
+    ::ll::TypedStorage<8, 24, ::std::vector<::BlockSourceListener *>>
+        mListeners;
+    // 用于有效性检查的当前游戏刻（Tick）。
+    ::ll::TypedStorage<8, 8, ::Tick> mCurrentTickForValidityChecks;
+    // 是否为持久性方块源（例如，常加载区块）。
+    ::ll::TypedStorage<1, 1, bool> mIsPersistantBlockSource;
+    // 最后访问的区块位置（缓存）。
+    ::ll::TypedStorage<8, 8, ::ChunkPos> mLastChunkPos;
+    // 最后访问的区块的弱引用指针（缓存）。
+    ::ll::TypedStorage<8, 16, ::std::weak_ptr<::LevelChunk>> mLastChunkWeakPtr;
+    // 最后访问的区块的裸指针（缓存）。
+    ::ll::TypedStorage<8, 8, ::LevelChunk *> mLastChunkDirectPtr;
+    // 随机计划更新队列的指针。
+    ::ll::TypedStorage<8, 8, ::BlockTickingQueue *> mRandomTickQueue;
+    // 计划更新队列的指针。
+    ::ll::TypedStorage<8, 8, ::BlockTickingQueue *> mTickQueue;
+    // 默认的亮度值对（天空光和方块光）。
+    ::ll::TypedStorage<1, 2, ::BrightnessPair const> mDefaultBrightness;
+    // 用于临时存储获取到的实体的向量。
+    ::ll::TypedStorage<8, 24, ::std::vector<::Actor *>> mTempEntityList;
+    // 用于临时存储获取到的方块实体的向量。
+    ::ll::TypedStorage<8, 24, ::std::vector<::BlockActor *>>
+        mTempBlockEntityList;
+    // 用于临时存储碰撞箱（AABB）的向量。
+    ::ll::TypedStorage<8, 24, ::std::vector<::AABB>> mTempCubeList;
     // NOLINTEND
 
-public:
+  public:
     // prevent constructor by default
-    BlockSource& operator=(BlockSource const&);
-    BlockSource(BlockSource const&);
+    BlockSource &operator=(BlockSource const &);
+    BlockSource(BlockSource const &);
     BlockSource();
 
-public:
+  public:
     // virtual functions
+    // 虚函数
     // NOLINTBEGIN
     // vIndex: 0
-    virtual ~BlockSource() /*override*/;
+    virtual ~BlockSource() /*override*/; // 析构函数
 
     // vIndex: 27
-    virtual ::WeakRef<::BlockSource> getWeakRef() /*override*/;
+    virtual ::WeakRef<::BlockSource>
+    getWeakRef() /*override*/; // 获取自身的弱引用
 
     // vIndex: 41
-    virtual ::Level& getLevel() /*override*/;
+    virtual ::Level &getLevel() /*override*/; // 获取所属的 Level
 
     // vIndex: 36
-    virtual ::Dimension& getDimension() const /*override*/;
+    virtual ::Dimension &getDimension() const
+        /*override*/; // 获取所属的维度 (const)
 
     // vIndex: 35
-    virtual ::Dimension& getDimension() /*override*/;
+    virtual ::Dimension &getDimension() /*override*/; // 获取所属的维度
 
     // vIndex: 37
-    virtual ::Dimension const& getDimensionConst() const /*override*/;
+    virtual ::Dimension const &getDimensionConst() const
+        /*override*/; // 获取所属的维度 (const)
 
     // vIndex: 18
-    virtual ::DimensionType getDimensionId() const /*override*/;
+    virtual ::DimensionType getDimensionId() const /*override*/; // 获取维度的ID
 
     // vIndex: 57
-    virtual bool isInstaticking(::BlockPos const& pos) const /*override*/;
+    virtual bool isInstaticking(::BlockPos const &pos) const
+        /*override*/; // 检查指定位置的方块是否在立即更新（instatick）
 
     // vIndex: 28
-    virtual void addListener(::BlockSourceListener& l) /*override*/;
+    virtual void
+    addListener(::BlockSourceListener &l) /*override*/; // 添加一个方块源监听器
 
     // vIndex: 29
-    virtual void removeListener(::BlockSourceListener& l) /*override*/;
+    virtual void removeListener(
+        ::BlockSourceListener &l) /*override*/; // 移除一个方块源监听器
 
     // vIndex: 40
-    virtual ::LevelChunk* getChunk(int x, int z) const /*override*/;
+    virtual ::LevelChunk *getChunk(int x, int z) const
+        /*override*/; // 通过区块坐标获取区块
 
     // vIndex: 39
-    virtual ::LevelChunk* getChunk(::ChunkPos const& pos) const /*override*/;
+    virtual ::LevelChunk *getChunk(::ChunkPos const &pos) const
+        /*override*/; // 通过区块位置对象获取区块
 
     // vIndex: 38
-    virtual ::LevelChunk* getChunkAt(::BlockPos const& pos) const /*override*/;
+    virtual ::LevelChunk *getChunkAt(::BlockPos const &pos) const
+        /*override*/; // 通过方块位置获取区块
 
     // vIndex: 44
-    virtual short getAboveTopSolidBlock(
-        ::BlockPos const& pos,
-        bool              includeWater,
-        bool              includeLeaves,
-        bool              iteratePastInitialBlocking
-    ) const /*override*/;
+    virtual short getAboveTopSolidBlock(::BlockPos const &pos,
+                                        bool includeWater, bool includeLeaves,
+                                        bool iteratePastInitialBlocking) const
+        /*override*/; // 获取指定位置上方第一个固体方块的高度
 
     // vIndex: 45
-    virtual short getAboveTopSolidBlock(int x, int z, bool includeWater, bool includeLeaves) const /*override*/;
+    virtual short getAboveTopSolidBlock(int x, int z, bool includeWater,
+                                        bool includeLeaves) const
+        /*override*/; // 获取指定坐标上方第一个固体方块的高度
 
     // vIndex: 47
-    virtual short getHeight(::std::function<bool(::Block const&)> const& type, ::BlockPos const& pos) const
-        /*override*/;
+    virtual short getHeight(::std::function<bool(::Block const &)> const &type,
+                            ::BlockPos const &pos) const
+        /*override*/; // 获取满足特定条件的方块的高度
 
     // vIndex: 46
-    virtual short getHeight(::std::function<bool(::Block const&)> const& type, int x, int z) const /*override*/;
+    virtual short getHeight(::std::function<bool(::Block const &)> const &type,
+                            int x, int z) const
+        /*override*/; // 获取满足特定条件的方块的高度
 
     // vIndex: 13
-    virtual ::Material const& getMaterial(::BlockPos const& pos) const /*override*/;
+    virtual ::Material const &getMaterial(::BlockPos const &pos) const
+        /*override*/; // 获取指定位置的方块材质
 
     // vIndex: 12
-    virtual ::Material const& getMaterial(int x, int y, int z) const /*override*/;
+    virtual ::Material const &getMaterial(int x, int y, int z) const
+        /*override*/; // 获取指定坐标的方块材质
 
     // vIndex: 34
-    virtual short getMaxHeight() const /*override*/;
+    virtual short getMaxHeight() const /*override*/; // 获取最大高度
 
     // vIndex: 33
-    virtual short getMinHeight() const /*override*/;
+    virtual short getMinHeight() const /*override*/; // 获取最小高度
 
     // vIndex: 14
-    virtual bool hasBorderBlock(::BlockPos const pos) const /*override*/;
+    virtual bool hasBorderBlock(::BlockPos const pos) const
+        /*override*/; // 检查指定位置是否有边界方块
 
     // vIndex: 23
-    virtual float getBrightness(::BlockPos const& pos) const /*override*/;
+    virtual float getBrightness(::BlockPos const &pos) const
+        /*override*/; // 获取指定位置的亮度
 
     // vIndex: 6
-    virtual ::Block const& getLiquidBlock(::BlockPos const& p) const /*override*/;
+    virtual ::Block const &getLiquidBlock(::BlockPos const &p) const
+        /*override*/; // 获取指定位置的液体方块
 
     // vIndex: 5
-    virtual ::Block const& getExtraBlock(::BlockPos const& p) const /*override*/;
+    virtual ::Block const &getExtraBlock(::BlockPos const &p) const
+        /*override*/; // 获取指定位置的附加方块（如水下海草）
 
     // vIndex: 54
-    virtual bool mayPlace(
-        ::Block const&    block,
-        ::BlockPos const& pos,
-        uchar             face,
-        ::Actor*          placer,
-        bool              ignoreEntities,
-        ::Vec3            clickPos
-    ) /*override*/;
+    virtual bool
+    mayPlace(::Block const &block, ::BlockPos const &pos, uchar face,
+             ::Actor *placer, bool ignoreEntities,
+             ::Vec3 clickPos) /*override*/; // 检查是否可以在指定位置放置方块
 
     // vIndex: 7
-    virtual bool hasBlock(::BlockPos const& pos) const /*override*/;
+    virtual bool hasBlock(::BlockPos const &pos) const
+        /*override*/; // 检查指定位置是否有方块（非空气）
 
     // vIndex: 55
-    virtual bool canDoBlockDrops() const /*override*/;
+    virtual bool canDoBlockDrops() const
+        /*override*/; // 检查是否可以执行方块掉落
 
     // vIndex: 56
-    virtual bool canDoContainedItemDrops() const /*override*/;
+    virtual bool canDoContainedItemDrops() const
+        /*override*/; // 检查是否可以执行容器内物品掉落
 
     // vIndex: 17
-    virtual bool hasChunksAt(::Bounds const& bounds, bool ignoreClientChunk) const /*override*/;
+    virtual bool hasChunksAt(::Bounds const &bounds,
+                             bool ignoreClientChunk) const
+        /*override*/; // 检查指定范围内的所有区块是否存在
 
     // vIndex: 16
-    virtual bool hasChunksAt(::BlockPos const& pos, int r, bool ignoreClientChunk) const /*override*/;
+    virtual bool hasChunksAt(::BlockPos const &pos, int r,
+                             bool ignoreClientChunk) const
+        /*override*/; // 检查以某点为中心、r为半径的区域内的所有区块是否存在
 
     // vIndex: 15
-    virtual bool hasChunksAt(::AABB const& bb, bool ignoreClientChunk) const /*override*/;
+    virtual bool hasChunksAt(::AABB const &bb, bool ignoreClientChunk) const
+        /*override*/; // 检查指定AABB内的所有区块是否存在
 
     // vIndex: 53
-    virtual bool areChunksFullyLoaded(::BlockPos const& pos, int r) const /*override*/;
+    virtual bool areChunksFullyLoaded(::BlockPos const &pos, int r) const
+        /*override*/; // 检查指定区域内的所有区块是否已完全加载
 
     // vIndex: 8
-    virtual bool containsAnyLiquid(::AABB const& box) const /*override*/;
+    virtual bool containsAnyLiquid(::AABB const &box) const
+        /*override*/; // 检查指定AABB内是否含有任何液体
 
     // vIndex: 9
-    virtual bool containsMaterial(::AABB const& box, ::MaterialType material) const /*override*/;
+    virtual bool containsMaterial(::AABB const &box,
+                                  ::MaterialType material) const
+        /*override*/; // 检查指定AABB内是否含有特定材质的方块
 
     // vIndex: 4
-    virtual ::BlockActor const* getBlockEntity(::BlockPos const& pos) const /*override*/;
+    virtual ::BlockActor const *getBlockEntity(::BlockPos const &pos) const
+        /*override*/; // 获取指定位置的方块实体 (const)
 
     // vIndex: 31
-    virtual ::gsl::span<::gsl::not_null<::Actor*>>
-    fetchEntities(::Actor const* except, ::AABB const& bb, bool useHitbox, bool getDisplayEntities) /*override*/;
+    virtual ::gsl::span<::gsl::not_null<::Actor *>>
+    fetchEntities(::Actor const *except, ::AABB const &bb, bool useHitbox,
+                  bool getDisplayEntities) /*override*/; // 获取实体列表
 
     // vIndex: 30
-    virtual ::gsl::span<::gsl::not_null<::Actor*>>
-    fetchEntities(::ActorType, ::AABB const&, ::Actor const*, ::std::function<bool(::Actor*)>) /*override*/;
+    virtual ::gsl::span<::gsl::not_null<::Actor *>>
+    fetchEntities(::ActorType, ::AABB const &, ::Actor const *,
+                  ::std::function<
+                      bool(::Actor *)>) /*override*/; // 获取特定类型的实体列表
 
     // vIndex: 19
-    virtual void
-    fetchAABBs(::std::vector<::AABB>& shapes, ::AABB const& intersectTestBox, bool withUnloadedChunks) const
-        /*override*/;
+    virtual void fetchAABBs(::std::vector<::AABB> &shapes,
+                            ::AABB const &intersectTestBox,
+                            bool withUnloadedChunks) const
+        /*override*/; // 获取与测试盒相交的AABB列表
 
     // vIndex: 25
-    virtual ::std::vector<::AABB>& fetchAABBs(::AABB const& intersectTestBox, bool withUnloadedChunks) /*override*/;
+    virtual ::std::vector<::AABB> &fetchAABBs(
+        ::AABB const &intersectTestBox,
+        bool withUnloadedChunks) /*override*/; // 获取与测试盒相交的AABB列表
 
     // vIndex: 26
-    virtual ::std::vector<::AABB>& fetchCollisionShapes(
-        ::AABB const&                          intersectTestBox,
-        bool                                   withUnloadedChunks,
+    virtual ::std::vector<::AABB> &fetchCollisionShapes(
+        ::AABB const &intersectTestBox, bool withUnloadedChunks,
         ::std::optional<::EntityContext const> entity,
-        ::std::vector<::AABB>*                 tempShapes
-    ) /*override*/;
+        ::std::vector<::AABB> *tempShapes) /*override*/; // 获取碰撞箱形状
 
     // vIndex: 20
     virtual void fetchCollisionShapes(
-        ::std::vector<::AABB>&                             shapes,
-        ::AABB const&                                      intersectTestBox,
-        bool                                               withUnloadedChunks,
+        ::std::vector<::AABB> &shapes, ::AABB const &intersectTestBox,
+        bool withUnloadedChunks,
         ::optional_ref<::GetCollisionShapeInterface const> entity,
-        ::std::vector<::AABB>*                             tempShapes
-    ) const /*override*/;
+        ::std::vector<::AABB> *tempShapes) const
+        /*override*/; // 获取碰撞箱形状 (const)
 
     // vIndex: 21
     virtual void fetchCollisionShapesAndBlocks(
-        ::std::vector<::BlockSourceVisitor::CollisionShape>& shapes,
-        ::AABB const&                                        intersectTestBox,
-        bool                                                 withUnloadedChunks,
-        ::optional_ref<::GetCollisionShapeInterface const>   entity,
-        ::std::vector<::AABB>*                               tempShapes
-    ) const /*override*/;
+        ::std::vector<::BlockSourceVisitor::CollisionShape> &shapes,
+        ::AABB const &intersectTestBox, bool withUnloadedChunks,
+        ::optional_ref<::GetCollisionShapeInterface const> entity,
+        ::std::vector<::AABB> *tempShapes) const
+        /*override*/; // 获取碰撞箱形状和对应的方块
 
     // vIndex: 22
     virtual ::AABB getTallestCollisionShape(
-        ::AABB const&                                      intersectTestBox,
-        float*                                             actualSurfaceOffset,
-        bool                                               withUnloadedChunks,
-        ::optional_ref<::GetCollisionShapeInterface const> entity
-    ) const /*override*/;
+        ::AABB const &intersectTestBox, float *actualSurfaceOffset,
+        bool withUnloadedChunks,
+        ::optional_ref<::GetCollisionShapeInterface const> entity) const
+        /*override*/; // 获取最高的碰撞箱
 
     // vIndex: 49
-    virtual ::HitResult clip(
-        ::Vec3 const&                                                            A,
-        ::Vec3 const&                                                            B,
-        bool                                                                     checkAgainstLiquid,
-        ::ShapeType                                                              shapeType,
-        int                                                                      maxDistance,
-        bool                                                                     ignoreBorderBlocks,
-        bool                                                                     fullOnly,
-        ::Actor*                                                                 actor,
-        ::std::function<bool(::BlockSource const&, ::Block const&, bool)> const& shouldCheckBlock
-    ) const /*override*/;
+    virtual ::HitResult
+    clip(::Vec3 const &A, ::Vec3 const &B, bool checkAgainstLiquid,
+         ::ShapeType shapeType, int maxDistance, bool ignoreBorderBlocks,
+         bool fullOnly, ::Actor *actor,
+         ::std::function<bool(::BlockSource const &, ::Block const &,
+                              bool)> const &shouldCheckBlock) const
+        /*override*/; // 进行射线检测
 
     // vIndex: 48
-    virtual ::HitResult clip(::ClipParameters const& parameters) const /*override*/;
+    virtual ::HitResult clip(::ClipParameters const &parameters) const
+        /*override*/; // 使用参数对象进行射线检测
 
     // vIndex: 10
-    virtual bool isInWall(::Vec3 const& pos) const /*override*/;
+    virtual bool isInWall(::Vec3 const &pos) const
+        /*override*/; // 检查一个点是否在墙内
 
     // vIndex: 11
-    virtual bool isUnderWater(::Vec3 const& pos, ::Block const& block) const /*override*/;
+    virtual bool isUnderWater(::Vec3 const &pos, ::Block const &block) const
+        /*override*/; // 检查一个点是否在水下
 
     // vIndex: 3
-    virtual ::Block const& getBlock(int x, int y, int z) const /*override*/;
+    virtual ::Block const &getBlock(int x, int y, int z) const
+        /*override*/; // 通过坐标获取方块
 
     // vIndex: 2
-    virtual ::Block const& getBlock(::BlockPos const& pos) const /*override*/;
+    virtual ::Block const &getBlock(::BlockPos const &pos) const
+        /*override*/; // 通过位置对象获取方块
 
     // vIndex: 1
-    virtual ::Block const& getBlock(::BlockPos const& pos, uint layer) const /*override*/;
+    virtual ::Block const &getBlock(::BlockPos const &pos, uint layer) const
+        /*override*/; // 通过位置和层级获取方块
 
     // vIndex: 32
-    virtual bool setBlock(
-        ::BlockPos const&              pos,
-        ::Block const&                 block,
-        int                            updateFlags,
-        ::ActorBlockSyncMessage const* syncMsg,
-        ::Actor*                       blockChangeSource
-    ) /*override*/;
+    virtual bool setBlock(::BlockPos const &pos, ::Block const &block,
+                          int updateFlags,
+                          ::ActorBlockSyncMessage const *syncMsg,
+                          ::Actor *blockChangeSource) /*override*/; // 设置方块
 
     // vIndex: 51
-    virtual bool isSolidBlockingBlock(int x, int y, int z) const /*override*/;
+    virtual bool isSolidBlockingBlock(int x, int y, int z) const
+        /*override*/; // 检查指定坐标的方块是否为固体阻挡方块
 
     // vIndex: 52
-    virtual bool isSolidBlockingBlock(::BlockPos const& p) const /*override*/;
+    virtual bool isSolidBlockingBlock(::BlockPos const &p) const
+        /*override*/; // 检查指定位置的方块是否为固体阻挡方块
 
     // vIndex: 60
-    virtual bool removeBlock(::BlockPos const& pos) /*override*/;
+    virtual bool removeBlock(::BlockPos const &pos) /*override*/; // 移除方块
 
     // vIndex: 42
-    virtual ::ILevel& getILevel() const /*override*/;
+    virtual ::ILevel &getILevel() const /*override*/; // 获取ILevel接口
 
     // vIndex: 43
-    virtual ::LevelSeed64 getLevelSeed64() const /*override*/;
+    virtual ::LevelSeed64 getLevelSeed64() const
+        /*override*/; // 获取64位世界种子
 
     // vIndex: 50
-    virtual ::ChunkSource& getChunkSource() /*override*/;
+    virtual ::ChunkSource &getChunkSource() /*override*/; // 获取区块源
 
     // vIndex: 59
     virtual bool checkBlockPermissions(
-        ::Actor&               entity,
-        ::BlockPos const&      blockPos,
-        uchar                  face,
-        ::ItemStackBase const& item,
-        bool                   generateParticle
-    ) /*override*/;
+        ::Actor &entity, ::BlockPos const &blockPos, uchar face,
+        ::ItemStackBase const &item,
+        bool generateParticle) /*override*/; // 检查实体对方块的操作权限
 
     // vIndex: 24
-    virtual float getVisualLiquidHeight(::Vec3 const& pos) const /*override*/;
+    virtual float getVisualLiquidHeight(::Vec3 const &pos) const
+        /*override*/; // 获取视觉上的液体高度
 
     // vIndex: 61
     virtual void postGameEvent(
-        ::Actor*           source,
-        ::GameEvent const& gameEvent,
-        ::BlockPos const&  originPos,
-        ::Block const*     affectedBlock
-    ) /*override*/;
+        ::Actor *source, ::GameEvent const &gameEvent,
+        ::BlockPos const &originPos,
+        ::Block const *affectedBlock) /*override*/; // 发送一个游戏事件
 
     // vIndex: 58
-    virtual void updateCheckForValidityState(bool checkForValidity) /*override*/;
+    virtual void updateCheckForValidityState(
+        bool checkForValidity) /*override*/; // 更新有效性检查的状态
     // NOLINTEND
 
-public:
+  public:
     // member functions
+    // 成员函数
     // NOLINTBEGIN
-    MCAPI BlockSource(
-        ::Level&       level,
-        ::Dimension&   dimension,
-        ::ChunkSource& source,
-        bool           publicSource,
-        bool           allowUnpopulatedChunks,
-        bool           allowClientTickingChanges
-    );
+    /**
+     * @brief BlockSource 的构造函数。
+     * @param level BlockSource 所属的 Level。
+     * @param dimension BlockSource 所属的维度。
+     * @param source BlockSource 使用的 ChunkSource。
+     * @param publicSource 是否为公共源（通常用于玩家可访问的区域）。
+     * @param allowUnpopulatedChunks 是否允许访问未完全生成的区块。
+     * @param allowClientTickingChanges 是否允许在客户端进行方块tick更新。
+     */
+    MCAPI BlockSource(::Level &level, ::Dimension &dimension,
+                      ::ChunkSource &source, bool publicSource,
+                      bool allowUnpopulatedChunks,
+                      bool allowClientTickingChanges);
 
-    MCAPI void _addToTickingQueue(
-        ::BlockPos const&  pos,
-        ::Block const&     block,
-        int                tickDelay,
-        int                priorityOffset,
-        ::TickingQueueType queueType,
-        bool               skipOverrides
-    );
+    /**
+     * @brief (内部使用) 将方块添加到计划更新队列。
+     * @param pos 方块位置。
+     * @param block 要添加的方块。
+     * @param tickDelay 延迟的tick数。
+     * @param priorityOffset 优先级偏移。
+     * @param queueType 队列类型（普通或随机）。
+     * @param skipOverrides 是否跳过覆盖检查。
+     */
+    MCAPI void _addToTickingQueue(::BlockPos const &pos, ::Block const &block,
+                                  int tickDelay, int priorityOffset,
+                                  ::TickingQueueType queueType,
+                                  bool skipOverrides);
 
-    MCAPI void _blockChanged(
-        ::BlockPos const&              pos,
-        uint                           layer,
-        ::Block const&                 block,
-        ::Block const&                 previousBlock,
-        int                            updateFlags,
-        ::ActorBlockSyncMessage const* syncMsg,
-        ::Actor*                       blockChangeSource
-    );
+    /**
+     * @brief (内部使用) 处理方块变更的逻辑。
+     * @param pos 方块位置。
+     * @param layer 方块所在的层。
+     * @param block 新的方块状态。
+     * @param previousBlock 之前的方块状态。
+     * @param updateFlags 更新标志位，控制邻居更新等行为。
+     * @param syncMsg 实体方块同步消息。
+     * @param blockChangeSource 引起此次方块变更的实体。
+     */
+    MCAPI void _blockChanged(::BlockPos const &pos, uint layer,
+                             ::Block const &block, ::Block const &previousBlock,
+                             int updateFlags,
+                             ::ActorBlockSyncMessage const *syncMsg,
+                             ::Actor *blockChangeSource);
 
+    /**
+     * @brief (内部使用) 获取边界方块的碰撞箱。
+     */
     MCAPI void _fetchBorderBlockCollisions(
-        ::std::vector<::AABB>&                             shapes,
-        ::AABB const&                                      intersectTestBox,
-        ::optional_ref<::GetCollisionShapeInterface const> entity,
-        bool
-    ) const;
+        ::std::vector<::AABB> &shapes, ::AABB const &intersectTestBox,
+        ::optional_ref<::GetCollisionShapeInterface const> entity, bool) const;
 
+    /**
+     * @brief (内部使用) 获取实体的辅助函数。
+     */
     MCAPI void _fetchEntityHelper(
-        ::WeakEntityRef const&                              entityRef,
-        ::gsl::span<::gsl::not_null<::Actor const*>> const& ignoredEntities,
-        ::AABB const&                                       bb,
-        bool                                                useHitbox
-    );
+        ::WeakEntityRef const &entityRef,
+        ::gsl::span<::gsl::not_null<::Actor const *>> const &ignoredEntities,
+        ::AABB const &bb, bool useHitbox);
 
-    MCAPI void _fetchEntityHelper(
-        ::WeakEntityRef const&          entityRef,
-        ::ActorType                     entityTypeId,
-        ::AABB const&                   bb,
-        ::Actor const*                  except,
-        ::std::function<bool(::Actor*)> selector
-    );
+    /**
+     * @brief (内部使用) 获取实体的辅助函数（带选择器）。
+     */
+    MCAPI void _fetchEntityHelper(::WeakEntityRef const &entityRef,
+                                  ::ActorType entityTypeId, ::AABB const &bb,
+                                  ::Actor const *except,
+                                  ::std::function<bool(::Actor *)> selector);
 
-    MCAPI bool _getBlockPermissions(::BlockPos const& pos, bool currentState);
+    /**
+     * @brief (内部使用) 获取方块权限。
+     */
+    MCAPI bool _getBlockPermissions(::BlockPos const &pos, bool currentState);
 
-    MCAPI ::Brightness
-    _getRawBrightness(::BlockPos const& pos, ::Brightness skyDarken, bool propagate, bool accountForNight) const;
+    /**
+     * @brief (内部使用) 获取原始亮度值。
+     */
+    MCAPI ::Brightness _getRawBrightness(::BlockPos const &pos,
+                                         ::Brightness skyDarken, bool propagate,
+                                         bool accountForNight) const;
 
-    MCAPI void _removeFromTickingQueue(::BlockPos const& pos, ::Block const& block, ::TickingQueueType queueType);
+    /**
+     * @brief (内部使用) 从计划更新队列中移除方块。
+     */
+    MCAPI void _removeFromTickingQueue(::BlockPos const &pos,
+                                       ::Block const &block,
+                                       ::TickingQueueType queueType);
 
+    /**
+     * @brief (内部使用) 用边界方块的碰撞来更新最高的碰撞箱。
+     */
     MCAPI void _updateTallestCollisionShapeWithBorderBlockCollisions(
-        ::AABB const&                                      intersectTestBox,
+        ::AABB const &intersectTestBox,
         ::optional_ref<::GetCollisionShapeInterface const> entity,
-        ::AABB&                                            result,
-        ::Vec3 const&                                      posToMinimizeDistanceToIfMatchingHeight,
-        float&                                             currentDistanceSqr
-    ) const;
+        ::AABB &result, ::Vec3 const &posToMinimizeDistanceToIfMatchingHeight,
+        float &currentDistanceSqr) const;
 
-    MCAPI void addToRandomTickingQueuePercentChance(
-        ::BlockPos const& pos,
-        ::Block const&    block,
-        float             percentChance,
-        int               priorityOffset,
-        bool              skipOverrides
-    );
+    /**
+     * @brief 以一定百分比的几率将方块添加到随机计划更新队列。
+     */
+    MCAPI void addToRandomTickingQueuePercentChance(::BlockPos const &pos,
+                                                    ::Block const &block,
+                                                    float percentChance,
+                                                    int priorityOffset,
+                                                    bool skipOverrides);
 
-    MCAPI void addToTickingQueue(
-        ::BlockPos const& pos,
-        ::Block const&    block,
-        int               tickDelay,
-        int               priorityOffset,
-        bool              skipOverrides
-    );
+    /**
+     * @brief 将方块添加到计划更新队列。
+     */
+    MCAPI void addToTickingQueue(::BlockPos const &pos, ::Block const &block,
+                                 int tickDelay, int priorityOffset,
+                                 bool skipOverrides);
 
-    MCAPI bool areChunksFullyLoaded(::BlockPos const& min, ::BlockPos const& max) const;
+    /**
+     * @brief 检查指定区域内的所有区块是否已完全加载。
+     */
+    MCAPI bool areChunksFullyLoaded(::BlockPos const &min,
+                                    ::BlockPos const &max) const;
 
-    MCAPI void blockEvent(::BlockPos const& pos, int b0, int b1);
+    /**
+     * @brief 触发一个方块事件（如音符盒发声）。
+     * @param pos 方块位置。
+     * @param b0 事件ID。
+     * @param b1 事件数据。
+     */
+    MCAPI void blockEvent(::BlockPos const &pos, int b0, int b1);
 
-    MCAPI bool canProvideSupport(::BlockPos const& pos, uchar face, ::BlockSupportType type) const;
+    /**
+     * @brief 检查一个方块是否能为另一面提供支撑。
+     */
+    MCAPI bool canProvideSupport(::BlockPos const &pos, uchar face,
+                                 ::BlockSupportType type) const;
 
-    MCAPI bool canSeeSky(::BlockPos const& pos) const;
+    /**
+     * @brief 检查指定位置是否能看到天空。
+     */
+    MCAPI bool canSeeSky(::BlockPos const &pos) const;
 
-    MCAPI bool canSeeSkyFromBelowWater(::BlockPos const& pos);
+    /**
+     * @brief 检查在水下的指定位置是否能看到天空。
+     */
+    MCAPI bool canSeeSkyFromBelowWater(::BlockPos const &pos);
 
-    MCAPI bool checkBlockDestroyPermissions(
-        ::Actor&               entity,
-        ::BlockPos const&      pos,
-        ::ItemStackBase const& item,
-        bool                   generateParticle
-    );
+    /**
+     * @brief 检查实体是否有权限破坏方块。
+     */
+    MCAPI bool checkBlockDestroyPermissions(::Actor &entity,
+                                            ::BlockPos const &pos,
+                                            ::ItemStackBase const &item,
+                                            bool generateParticle);
 
-    MCAPI bool containsAnyBlockInBox(::BoundingBox const& box, ::std::function<bool(::Block const&)> predicate);
-
-    MCAPI bool containsAnyBlockOfType(::BlockPos const& min, ::BlockPos const& max, ::Block const& type) const;
-
-    MCAPI bool containsAnySolidBlocking(::AABB const& box) const;
-
-    MCAPI uint64 countBlocksOfType(
-        ::BlockDescriptor const& blockDescriptor,
-        ::BlockPos const&        min,
-        ::BlockPos const&        max,
-        uint64                   maxCount
-    ) const;
-
-    MCAPI ::gsl::span<::gsl::not_null<::Actor*>>
-    fetchActors(::ActorDefinitionIdentifier const& actorId, ::AABB const& bb);
-
-    MCAPI ::std::vector<::BlockActor*> fetchBlockEntities(::BlockActorType blockActorTypeId, ::AABB const& bb) const;
-
-    MCAPI ::std::vector<::BlockActor*> const& fetchBlockEntities(::AABB const& bb);
-
-    MCAPI bool fetchBlocks(::BlockPos const& origin, ::BlockVolume& volume) const;
-
-    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const>
-    fetchBlocksInBox(::BoundingBox const& box, ::std::function<bool(::Block const&)> predicate);
-
-    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const>
-    fetchBlocksInBoxSorted(::BoundingBox const& box, ::std::function<bool(::Block const&)> predicate);
-
-    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const> fetchBlocksInCylinder(
-        ::BlockPos const&                     centerPos,
-        uint                                  radius,
-        uint                                  height,
-        ::std::function<bool(::Block const&)> predicate
-    );
-
-    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const> fetchBlocksInCylinderSorted(
-        ::BlockPos const&                     centerPos,
-        uint                                  radius,
-        uint                                  height,
-        ::std::function<bool(::Block const&)> predicate
-    );
-
-    MCAPI ::gsl::span<::gsl::not_null<::Actor*>> fetchEntities(
-        ::gsl::span<::gsl::not_null<::Actor const*>> ignoredEntities,
-        ::AABB const&                                bb,
-        bool                                         useHitbox,
-        bool                                         getDisplayEntities
-    );
-
-    MCAPI ::std::vector<::Actor*> const& fetchEntities2(::ActorType type, ::AABB const& aabb, bool ignoreTargetType);
-
-    MCAPI ::Actor* fetchNearestEntityOfType(::Actor const* except, ::AABB const& bb, ::ActorType entityTypeId);
-
-    MCAPI ::gsl::span<::gsl::not_null<::Actor*>>
-    fetchPlayers(::AABB const& bb, ::Actor const* except, ::std::function<bool(::Actor*)> selector);
-
-    MCAPI bool findNextTopSolidBlockUnder(::BlockPos& pos);
-
-    MCAPI void fireBlockChanged(
-        ::BlockPos const&              pos,
-        uint                           layer,
-        ::Block const&                 block,
-        ::Block const&                 oldBlock,
-        int                            flags,
-        ::BlockChangedEventTarget      eventTarget,
-        ::ActorBlockSyncMessage const* syncMsg,
-        ::Actor*                       source
-    );
-
-    MCAPI void fireBlockEntityChanged(::BlockActor& te);
-
-    MCAPI ::Biome const& getBiome(::BlockPos const& pos) const;
-
-    MCAPI ::BlockActor* getBlockEntity(::BlockPos const&);
-
-    MCAPI ::BrightnessPair getBrightnessPair(::BlockPos const& pos) const;
-
-    MCAPI float getSeenPercent(::Vec3 const& center, ::AABB const& bb);
-
-    MCAPI void getTallestCollisionShapeFromUnloadedChunksAABBs(
-        ::AABB const& intersectTestBox,
-        ::AABB&       tallestCollisionShape,
-        ::Vec3 const& posToMinimizeDistanceToIfMatchingHeight,
-        float&        currentDistanceSqr
-    ) const;
-
-    MCAPI bool hasChunksAt(::BlockPos const& min, ::BlockPos const& max, bool ignoreClientChunk) const;
-
-    MCAPI ::std::pair<bool, ::std::optional<::SubChunkPos>>
-    hasSubChunksAt(::BlockPos const& min, ::BlockPos const& max) const;
-
-    MCAPI bool hasTickInCurrentTick(::BlockPos const& pos, ::TickingQueueType queueType) const;
-
-    MCAPI bool hasTickInPendingTicks(::BlockPos const& pos, ::TickingQueueType queueType) const;
-
-    MCAPI bool hasTickInPendingTicks(::BlockPos const& pos, ::Block const& block, ::TickingQueueType queueType) const;
-
+    /**
+     * @brief 检查指定盒子内是否包含任何满足条件的方块。
+     */
     MCAPI bool
-    hasTickInPendingTicks(::BlockPos const& pos, ::BlockLegacy const& block, ::TickingQueueType queueType) const;
+    containsAnyBlockInBox(::BoundingBox const &box,
+                          ::std::function<bool(::Block const &)> predicate);
 
-    MCAPI bool hasUntickedNeighborChunk(::ChunkPos const& pos, int chunkRadius) const;
+    /**
+     * @brief 检查指定区域内是否包含任何指定类型的方块。
+     */
+    MCAPI bool containsAnyBlockOfType(::BlockPos const &min,
+                                      ::BlockPos const &max,
+                                      ::Block const &type) const;
 
+    /**
+     * @brief 检查指定碰撞箱内是否包含任何固体阻挡方块。
+     */
+    MCAPI bool containsAnySolidBlocking(::AABB const &box) const;
+
+    /**
+     * @brief 统计指定区域内某种方块的数量。
+     */
+    MCAPI uint64 countBlocksOfType(::BlockDescriptor const &blockDescriptor,
+                                   ::BlockPos const &min, ::BlockPos const &max,
+                                   uint64 maxCount) const;
+
+    /**
+     * @brief 获取指定ID和范围内的实体。
+     */
+    MCAPI ::gsl::span<::gsl::not_null<::Actor *>>
+    fetchActors(::ActorDefinitionIdentifier const &actorId, ::AABB const &bb);
+
+    /**
+     * @brief 获取指定类型和范围内的方块实体。
+     */
+    MCAPI ::std::vector<::BlockActor *>
+    fetchBlockEntities(::BlockActorType blockActorTypeId,
+                       ::AABB const &bb) const;
+
+    /**
+     * @brief 获取指定范围内的所有方块实体。
+     */
+    MCAPI ::std::vector<::BlockActor *> const &
+    fetchBlockEntities(::AABB const &bb);
+
+    /**
+     * @brief 获取指定区域的方块数据到 BlockVolume 中。
+     */
+    MCAPI bool fetchBlocks(::BlockPos const &origin,
+                           ::BlockVolume &volume) const;
+
+    /**
+     * @brief 获取指定盒子内满足条件的方块。
+     */
+    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const>
+    fetchBlocksInBox(::BoundingBox const &box,
+                     ::std::function<bool(::Block const &)> predicate);
+
+    /**
+     * @brief 获取指定盒子内满足条件的方块，并按距离排序。
+     */
+    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const>
+    fetchBlocksInBoxSorted(::BoundingBox const &box,
+                           ::std::function<bool(::Block const &)> predicate);
+
+    /**
+     * @brief 获取圆柱区域内满足条件的方块。
+     */
+    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const>
+    fetchBlocksInCylinder(::BlockPos const &centerPos, uint radius, uint height,
+                          ::std::function<bool(::Block const &)> predicate);
+
+    /**
+     * @brief 获取圆柱区域内满足条件的方块，并按距离排序。
+     */
+    MCAPI ::gsl::span<::BlockDataFetchResult<::Block> const>
+    fetchBlocksInCylinderSorted(
+        ::BlockPos const &centerPos, uint radius, uint height,
+        ::std::function<bool(::Block const &)> predicate);
+
+    /**
+     * @brief 获取指定范围内的实体，可忽略特定实体。
+     */
+    MCAPI ::gsl::span<::gsl::not_null<::Actor *>>
+    fetchEntities(::gsl::span<::gsl::not_null<::Actor const *>> ignoredEntities,
+                  ::AABB const &bb, bool useHitbox, bool getDisplayEntities);
+
+    /**
+     * @brief 获取指定类型和范围内的实体（旧版或备用实现）。
+     */
+    MCAPI ::std::vector<::Actor *> const &
+    fetchEntities2(::ActorType type, ::AABB const &aabb, bool ignoreTargetType);
+
+    /**
+     * @brief 获取指定范围内最近的某种类型的实体。
+     */
+    MCAPI ::Actor *fetchNearestEntityOfType(::Actor const *except,
+                                            ::AABB const &bb,
+                                            ::ActorType entityTypeId);
+
+    /**
+     * @brief 获取指定范围内的玩家。
+     */
+    MCAPI ::gsl::span<::gsl::not_null<::Actor *>>
+    fetchPlayers(::AABB const &bb, ::Actor const *except,
+                 ::std::function<bool(::Actor *)> selector);
+
+    /**
+     * @brief 寻找并更新位置到其下方的第一个固体方块顶部。
+     */
+    MCAPI bool findNextTopSolidBlockUnder(::BlockPos &pos);
+
+    /**
+     * @brief 触发方块变更事件，并通知监听器。
+     */
+    MCAPI void fireBlockChanged(::BlockPos const &pos, uint layer,
+                                ::Block const &block, ::Block const &oldBlock,
+                                int flags,
+                                ::BlockChangedEventTarget eventTarget,
+                                ::ActorBlockSyncMessage const *syncMsg,
+                                ::Actor *source);
+
+    /**
+     * @brief 触发方块实体变更事件。
+     */
+    MCAPI void fireBlockEntityChanged(::BlockActor &te);
+
+    /**
+     * @brief 获取指定位置的生物群系。
+     */
+    MCAPI ::Biome const &getBiome(::BlockPos const &pos) const;
+
+    /**
+     * @brief 获取指定位置的方块实体。
+     */
+    MCAPI ::BlockActor *getBlockEntity(::BlockPos const &);
+
+    /**
+     * @brief 获取指定位置的亮度对（天空光和方块光）。
+     */
+    MCAPI ::BrightnessPair getBrightnessPair(::BlockPos const &pos) const;
+
+    /**
+     * @brief 获取从一个点看向一个AABB的可见百分比。
+     */
+    MCAPI float getSeenPercent(::Vec3 const &center, ::AABB const &bb);
+
+    /**
+     * @brief 从已卸载的区块中获取最高的碰撞箱AABB。
+     */
+    MCAPI void getTallestCollisionShapeFromUnloadedChunksAABBs(
+        ::AABB const &intersectTestBox, ::AABB &tallestCollisionShape,
+        ::Vec3 const &posToMinimizeDistanceToIfMatchingHeight,
+        float &currentDistanceSqr) const;
+
+    /**
+     * @brief 检查指定矩形区域内的所有区块是否都存在。
+     */
+    MCAPI bool hasChunksAt(::BlockPos const &min, ::BlockPos const &max,
+                           bool ignoreClientChunk) const;
+
+    /**
+     * @brief 检查指定区域内的所有子区块是否都存在。
+     */
+    MCAPI ::std::pair<bool, ::std::optional<::SubChunkPos>>
+    hasSubChunksAt(::BlockPos const &min, ::BlockPos const &max) const;
+
+    /**
+     * @brief 检查一个方块是否在当前 tick 的计划更新队列中。
+     */
+    MCAPI bool hasTickInCurrentTick(::BlockPos const &pos,
+                                    ::TickingQueueType queueType) const;
+
+    /**
+     * @brief 检查一个方块是否在待处理的计划更新队列中。
+     */
+    MCAPI bool hasTickInPendingTicks(::BlockPos const &pos,
+                                     ::TickingQueueType queueType) const;
+
+    /**
+     * @brief 检查一个方块是否在待处理的计划更新队列中。
+     */
+    MCAPI bool hasTickInPendingTicks(::BlockPos const &pos,
+                                     ::Block const &block,
+                                     ::TickingQueueType queueType) const;
+
+    /**
+     * @brief 检查一个方块是否在待处理的计划更新队列中。
+     */
+    MCAPI bool hasTickInPendingTicks(::BlockPos const &pos,
+                                     ::BlockLegacy const &block,
+                                     ::TickingQueueType queueType) const;
+
+    /**
+     * @brief 检查一个区块附近是否有未进行 tick 更新的邻居区块。
+     */
+    MCAPI bool hasUntickedNeighborChunk(::ChunkPos const &pos,
+                                        int chunkRadius) const;
+
+    /**
+     * @brief 检查指定坐标的方块是否为空（空气）。
+     */
     MCAPI bool isEmptyBlock(int x, int y, int z);
 
-    MCAPI bool isNearUnloadedChunks(::ChunkPos const& pos) const;
+    /**
+     * @brief 检查一个区块是否靠近已卸载的区块。
+     */
+    MCAPI bool isNearUnloadedChunks(::ChunkPos const &pos) const;
 
-    MCAPI bool isTouchingMaterial(::BlockPos const& pos, ::MaterialType type) const;
+    /**
+     * @brief 检查指定位置的方块是否接触到某种材质。
+     */
+    MCAPI bool isTouchingMaterial(::BlockPos const &pos,
+                                  ::MaterialType type) const;
 
-    MCAPI bool isUnobstructedByEntities(::AABB const& aabb, ::Actor const* ignoreEntity);
+    /**
+     * @brief 检查一个AABB是否没有被任何实体阻挡。
+     */
+    MCAPI bool isUnobstructedByEntities(::AABB const &aabb,
+                                        ::Actor const *ignoreEntity);
 
+    /**
+     * @brief 检查Y坐标是否在世界高度限制内。
+     */
     MCAPI bool isWithinHeightLimits(int y) const;
 
-    MCAPI void neighborChanged(::BlockPos const& neighPos, ::BlockPos const& myPos);
+    /**
+     * @brief 当邻居方块发生变化时，通知指定位置的方块。
+     */
+    MCAPI void neighborChanged(::BlockPos const &neighPos,
+                               ::BlockPos const &myPos);
 
-    MCAPI void
-    postGameEvent(::Actor* source, ::GameEvent const& gameEvent, ::Vec3 const& originPos, ::Block const* affectedBlock);
+    /**
+     * @brief 发送一个游戏事件（用于 Sculk 感测器等）。
+     */
+    MCAPI void postGameEvent(::Actor *source, ::GameEvent const &gameEvent,
+                             ::Vec3 const &originPos,
+                             ::Block const *affectedBlock);
 
+    /**
+     * @brief 移除指定坐标的方块。
+     */
     MCAPI bool removeBlock(int x, int y, int z);
 
-    MCAPI bool setBlock(
-        ::BlockPos const&               pos,
-        ::Block const&                  block,
-        int                             updateFlags,
-        ::std::shared_ptr<::BlockActor> blockEntity,
-        ::ActorBlockSyncMessage const*  syncMsg,
-        ::Actor*                        blockChangeSource
-    );
+    /**
+     * @brief 设置指定位置的方块，并可选择设置方块实体。
+     */
+    MCAPI bool setBlock(::BlockPos const &pos, ::Block const &block,
+                        int updateFlags,
+                        ::std::shared_ptr<::BlockActor> blockEntity,
+                        ::ActorBlockSyncMessage const *syncMsg,
+                        ::Actor *blockChangeSource);
 
-    MCAPI bool setBlock(int x, int y, int z, ::Block const& block, int updateFlags, ::Actor* blockChangeSource);
+    /**
+     * @brief 设置指定坐标的方块。
+     */
+    MCAPI bool setBlock(int x, int y, int z, ::Block const &block,
+                        int updateFlags, ::Actor *blockChangeSource);
 
-    MCAPI void setBorderBlock(::BlockPos const& pos, bool val);
+    /**
+     * @brief 将指定位置的方块标记为边界方块（或取消标记）。
+     */
+    MCAPI void setBorderBlock(::BlockPos const &pos, bool val);
 
-    MCAPI bool setExtraBlock(::BlockPos const& p, ::Block const& block, int updateFlags);
+    /**
+     * @brief 设置方块的附加层方块（如含水方块中的水）。
+     */
+    MCAPI bool setExtraBlock(::BlockPos const &p, ::Block const &block,
+                             int updateFlags);
 
-    MCAPI bool setExtraBlockSimple(::BlockPos const& pos, ::Block const& block);
+    /**
+     * @brief 简单地设置方块的附加层方块，不进行更新。
+     */
+    MCAPI bool setExtraBlockSimple(::BlockPos const &pos, ::Block const &block);
 
-    MCAPI void updateNeighborsAt(::BlockPos const& pos);
+    /**
+     * @brief 更新指定位置的所有邻居方块。
+     */
+    MCAPI void updateNeighborsAt(::BlockPos const &pos);
     // NOLINTEND
 
-public:
+  public:
     // static functions
+    // 静态函数
     // NOLINTBEGIN
-    MCAPI static bool containsAnyLiquid(::IConstBlockSource const& region, ::AABB const& box);
+    // 检查指定区域内的 AABB 是否包含任何液体。
+    MCAPI static bool containsAnyLiquid(::IConstBlockSource const &region,
+                                        ::AABB const &box);
 
-    MCAPI static bool containsMaterial(::IConstBlockSource const& region, ::AABB const& box, ::MaterialType material);
+    // 检查指定区域内的 AABB 是否包含任何指定材质的方块。
+    MCAPI static bool containsMaterial(::IConstBlockSource const &region,
+                                       ::AABB const &box,
+                                       ::MaterialType material);
     // NOLINTEND
 
-public:
+  public:
     // constructor thunks
     // NOLINTBEGIN
     MCAPI void* $ctor(
